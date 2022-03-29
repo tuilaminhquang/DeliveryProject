@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'DeliveryApp.apps.DeliveryappConfig'
 ]
 
-AUTH_USER_MODEL = 'DeliveryApp.User'
 
 
 MIDDLEWARE = [
@@ -52,6 +51,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+AUTH_USER_MODEL = 'DeliveryApp.User'
+
 
 ROOT_URLCONF = 'Delivery.urls'
 
@@ -86,6 +88,9 @@ DATABASES = {
             'HOST': '' # mặc định localhost
     }
 }
+import pymysql
+
+pymysql.install_as_MySQLdb()
 
 
 # Password validation
