@@ -41,6 +41,11 @@ INSTALLED_APPS = [
     'rest_framework'
 ]
 
+MEDIA_ROOT = '%s/DeliveryApp/static/' % BASE_DIR
+
+STATIC_URL = '/static/'
+
+
 
 
 MIDDLEWARE = [
