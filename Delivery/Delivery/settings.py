@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'DeliveryApp.apps.DeliveryappConfig'
+    'DeliveryApp.apps.DeliveryappConfig',
+    'rest_framework'
 ]
 
 
@@ -52,7 +53,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-AUTH_USER_MODEL = 'DeliveryApp.User'
 
 
 ROOT_URLCONF = 'Delivery.urls'
@@ -88,6 +88,8 @@ DATABASES = {
             'HOST': '' # mặc định localhost
     }
 }
+AUTH_USER_MODEL = 'DeliveryApp.User'
+
 import pymysql
 
 pymysql.install_as_MySQLdb()
@@ -127,7 +129,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
