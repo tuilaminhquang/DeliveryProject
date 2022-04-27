@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'DeliveryApp.apps.DeliveryappConfig',
-    'rest_framework'
+    'rest_framework',
+    'drf_yasg',
+
 ]
 
 MEDIA_ROOT = '%s/DeliveryApp/static/' % BASE_DIR
