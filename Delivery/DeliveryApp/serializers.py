@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Shipper, Customer
+from .models import User, Shipper, Customer, Order
 
 
 class UserSerializers(serializers.ModelSerializer):
@@ -31,9 +31,35 @@ class UserSerializers(serializers.ModelSerializer):
         return user
 
 class ShipperSerializers(serializers.ModelSerializer):
-    user = UserSerializers
+    user = UserSerializers()
     class Meta:
         model = Shipper
         fields = ['user','identity_number']
+
+
+
+
+class OrderSerializers(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField(source='image')
+    def get_image(self, obj):
+        request = self.context['request']
+        # if obj.image and obj.image.name.startswith("/static"):
+        #     pass
+        # else:
+        path = '/static/%s' % obj.image.name
+
+        return request.build_absolute_uri(path)
+
+
+
+    class Meta:
+        model = Order
+        fields = ['id', 'order_name', 'created_date', 'updated_date', 'shipping_method','note', 'image', 'customer']
+
+
+
+
+
+
 
 

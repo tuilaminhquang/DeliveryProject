@@ -35,29 +35,48 @@ class ShippingMethod(ModelBase):
 
     def __str__(self):
         return self.name
+
 class Status(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
 
+
+
 class Order(ModelBase):
     order_name = models.CharField(max_length=100, null=False)
-    note = models.CharField(max_length=255)
+    note = models.CharField(max_length=255, blank=True)
 
     image = models.ImageField(null=True, blank=True, upload_to='orders/%Y/%m')
     shipping_method = models.ForeignKey(ShippingMethod,
                                         null=True,
-                                        on_delete=models.SET_NULL,
-                                        related_name='order',
+                                        default=1,
+                                        on_delete=models.CASCADE,
                                         )
-    customer = models.ForeignKey(Customer, null=True, on_delete=models.CASCADE)
-    shipper = models.ForeignKey(Shipper,null=True, on_delete=models.SET_NULL)
+    customer = models.ForeignKey(Customer, null=True, on_delete=models.CASCADE, related_name="orders")
     status = models.ForeignKey(Status,null=True, default=1, on_delete=models.SET_NULL)
-
 
     def __str__(self):
         return self.order_name
+
+class ActionBase(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    shipper = models.ForeignKey(Shipper, on_delete=models.CASCADE)
+    created_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together=('customer', 'shipper')
+        abstract=True
+
+class RatingShipper(ActionBase):
+    rate = models.SmallIntegerField(default=0)
+
+
+
+
+
 
 
 

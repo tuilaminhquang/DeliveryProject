@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from rest_framework import viewsets, generics, status, permissions, mixins
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 
-from .models import User, Shipper, Customer
-from .serializers import UserSerializers, ShipperSerializers
+from .models import User, Shipper, Customer, Order
+from .serializers import UserSerializers, ShipperSerializers, OrderSerializers
 
 # Create your views here.
 class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
@@ -22,6 +22,16 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
         return Response(self.serializer_class(request.user, context={'request': request}).data,
                         status=status.HTTP_200_OK)
 
-class ShipperViewSet(viewsets.ViewSet, generics.CreateAPIView):
+
+class ShipperViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.ListAPIView):
     queryset = Shipper.objects.all()
     serializer_class = ShipperSerializers
+
+class OrderViewSet(viewsets.ViewSet, generics.CreateAPIView):
+    serializer_class = OrderSerializers
+    queryset = Order.objects.filter(active=True)
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        customer = Customer.objects.get(user=self.request.user)
+        serializer.save(customer=customer)
