@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'debug_toolbar',
     'oauth2_provider'
+    "corsheaders",
 
 ]
 
@@ -62,6 +63,7 @@ STATIC_URL = '/static/'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -70,6 +72,8 @@ MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware'
 
 ]
+CORS_ALLOW_ALL_ORIGINS=True
+
 #Debug toolbar
 INTERNAL_IPS = [
     # ...
