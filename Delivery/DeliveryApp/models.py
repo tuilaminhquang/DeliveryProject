@@ -13,7 +13,7 @@ class Customer(models.Model):
 
 
 class Shipper(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE,primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     identity_number = models.CharField(max_length=20, null=True,)
 
     def __str__(self):
@@ -54,6 +54,9 @@ class Order(ModelBase):
                                         default=1,
                                         on_delete=models.CASCADE,
                                         )
+    from_address = models.TextField(max_length=100, null=False)
+    to_address = models.TextField(max_length=100, null=False)
+    km = models.FloatField(default=1)
     customer = models.ForeignKey(Customer, null=True, on_delete=models.CASCADE, related_name="orders")
     status = models.ForeignKey(Status,null=True, default=1, on_delete=models.SET_NULL)
 

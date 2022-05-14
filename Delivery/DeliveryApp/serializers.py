@@ -15,7 +15,7 @@ class UserSerializers(serializers.ModelSerializer):
         model = User
         fields = ['first_name', 'last_name',
                   'username', 'password', 'email',
-                  'avatar']
+                  'avatar  ']
         extra_kwargs = {
             'password': {
                 'write_only': True
@@ -31,11 +31,21 @@ class UserSerializers(serializers.ModelSerializer):
         return user
 
 class ShipperSerializers(serializers.ModelSerializer):
-    user = UserSerializers()
+
+
     class Meta:
         model = Shipper
-        fields = ['user','identity_number']
+        fields = ['user', 'identity_number']
 
+
+
+
+class AuthShipperSerializers(ShipperSerializers):
+    rating = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Shipper
+        fields = ShipperSerializers.Meta.fields + ['rating']
 
 
 
