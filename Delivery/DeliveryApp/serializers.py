@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import User, Shipper, Customer, Order
+from rest_framework.fields import CurrentUserDefault
+
 
 
 class UserSerializers(serializers.ModelSerializer):
@@ -35,7 +37,7 @@ class ShipperSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Shipper
-        fields = ['user', 'identity_number']
+        fields = ['user','identity_number']
 
 
 
@@ -64,7 +66,7 @@ class OrderSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'order_name', 'created_date', 'updated_date', 'shipping_method','note', 'image', 'customer']
+        fields = ['id', 'order_name', 'created_date', 'updated_date', 'shipping_method','note', 'image', 'customer','km','from_address','to_address']
 
 
 

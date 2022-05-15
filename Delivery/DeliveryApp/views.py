@@ -27,20 +27,13 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
                         status=status.HTTP_200_OK)
 
 
-class ShipperViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.ListAPIView, generics.RetrieveAPIView):
+class ShipperViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveAPIView):
     queryset = Shipper.objects.all()
     serializer_class = ShipperSerializers
+    permission_classes = [permissions.IsAuthenticated]
 
-    def get_serializer_class(self):
-        if self.request.user.is_authenticated:
-            return AuthShipperSerializers
 
-        return ShipperSerializers
-    def get_permissions(self):
-        if self.action in ['like', 'rating']:
-            return [permissions.IsAuthenticated()]
 
-        return [permissions.AllowAny()]
 
     @action(methods=['post'], url_path='rating', detail=True)
     def rating(self, request, pk):
@@ -57,6 +50,7 @@ class ShipperViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.ListAPIV
 
         return Response(data=ShipperSerializers(shipper, context={'request': request}).data,
                         status=status.HTTP_200_OK)
+
 
 
 class OrderViewSet(viewsets.ViewSet, generics.CreateAPIView):
