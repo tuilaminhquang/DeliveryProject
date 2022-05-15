@@ -34,12 +34,15 @@ class UserSerializers(serializers.ModelSerializer):
 
 class ShipperSerializers(serializers.ModelSerializer):
 
-
     class Meta:
         model = Shipper
         fields = ['user','identity_number']
 
+class CreateShipperSerializers(serializers.ModelSerializer):
 
+    class Meta:
+        model = Shipper
+        fields = ['identity_number']
 
 
 class AuthShipperSerializers(ShipperSerializers):

@@ -7,7 +7,7 @@ from rest_framework.parsers import MultiPartParser
 
 
 from .models import User, Shipper, Customer, Order, RatingShipper, Status
-from .serializers import UserSerializers, ShipperSerializers, OrderSerializers,AuthShipperSerializers
+from .serializers import UserSerializers, ShipperSerializers, OrderSerializers,AuthShipperSerializers,CreateShipperSerializers
 
 # Create your views here.
 class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
@@ -31,8 +31,6 @@ class ShipperViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.Retrieve
     queryset = Shipper.objects.all()
     serializer_class = ShipperSerializers
     permission_classes = [permissions.IsAuthenticated]
-
-
 
 
     @action(methods=['post'], url_path='rating', detail=True)
@@ -63,4 +61,12 @@ class OrderViewSet(viewsets.ViewSet, generics.CreateAPIView):
 
         if customer:
             serializer.save(customer=customer, status=Status.objects.get(id=1))
+
+
+class CreateShipperApiView(viewsets.ViewSet, generics.CreateAPIView):
+    serializer_class = CreateShipperSerializers
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
