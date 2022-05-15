@@ -7,7 +7,7 @@ from rest_framework.parsers import MultiPartParser
 
 
 from .models import User, Shipper, Customer, Order, RatingShipper, Status
-from .serializers import UserSerializers, ShipperSerializers, OrderSerializers
+from .serializers import UserSerializers, ShipperSerializers, OrderSerializers,AuthShipperSerializers
 
 # Create your views here.
 class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
@@ -31,6 +31,11 @@ class ShipperViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.ListAPIV
     queryset = Shipper.objects.all()
     serializer_class = ShipperSerializers
 
+    def get_serializer_class(self):
+        if self.request.user.is_authenticated:
+            return AuthShipperSerializers
+
+        return ShipperSerializers
     def get_permissions(self):
         if self.action in ['like', 'rating']:
             return [permissions.IsAuthenticated()]

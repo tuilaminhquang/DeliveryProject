@@ -8,6 +8,7 @@ cryptography==36.0.2
 Deprecated==1.2.13
 Django==4.0.2
 django-ckeditor==6.2.0
+django-cors-headers==3.12.0
 django-debug-toolbar==3.2.4
 django-js-asset==2.0.0
 django-oauth-toolkit==1.7.0
