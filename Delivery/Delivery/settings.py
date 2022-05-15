@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'debug_toolbar',
-    'oauth2_provider'
+    'oauth2_provider',
     "corsheaders",
 
 ]
