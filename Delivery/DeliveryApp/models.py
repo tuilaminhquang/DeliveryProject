@@ -78,6 +78,16 @@ class RatingShipper(ActionBase):
 
 
 
+class Comment(ModelBase):
+    content = models.TextField()
+    shipper = models.ForeignKey(Shipper,
+                               related_name='comments',
+                               on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.content
+
 
 
 

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, ShippingMethod,Order,Shipper,Customer, Status
+from .models import User, ShippingMethod,Order,Shipper,Customer, Status, Comment
 
 class OrderAdmin(admin.ModelAdmin):
     search_fields = ['shipper']
@@ -21,6 +21,7 @@ admin.site.register(User)
 admin.site.register(Shipper,ShipperAdmin)
 admin.site.register(Customer)
 admin.site.register(Status)
+admin.site.register(Comment)
 # admin.site.register(Bidding, BiddingAdmin)
 # admin.site.register(Receipt)
 

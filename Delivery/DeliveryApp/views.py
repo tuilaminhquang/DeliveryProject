@@ -27,7 +27,8 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
                         status=status.HTTP_200_OK)
 
 
-class ShipperViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveAPIView):
+
+class ShipperViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveAPIView, generics.ListAPIView):
     queryset = Shipper.objects.all()
     serializer_class = ShipperSerializers
     permission_classes = [permissions.IsAuthenticated]

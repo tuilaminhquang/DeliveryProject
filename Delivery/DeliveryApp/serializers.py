@@ -15,7 +15,7 @@ class UserSerializers(serializers.ModelSerializer):
             return request.build_absolute_uri(path)
     class Meta:
         model = User
-        fields = ['first_name', 'last_name',
+        fields = ['id','first_name', 'last_name',
                   'username', 'password', 'email',
                   'avatar']
         extra_kwargs = {
@@ -33,7 +33,7 @@ class UserSerializers(serializers.ModelSerializer):
         return user
 
 class ShipperSerializers(serializers.ModelSerializer):
-
+    user = UserSerializers()
     class Meta:
         model = Shipper
         fields = ['user','identity_number']
