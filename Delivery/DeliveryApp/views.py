@@ -36,10 +36,12 @@ class ShipperDetailViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
 
 
 
-class ShipperViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.ListAPIView):
+class ShipperViewSet(viewsets.ViewSet, generics.ListAPIView, generics.RetrieveAPIView):
     queryset = Shipper.objects.all()
     serializer_class = ShipperSerializers
     permission_classes = [permissions.IsAuthenticated]
+
+
 
 
     @action(methods=['post'], url_path='rating', detail=True)
@@ -74,7 +76,19 @@ class OrderViewSet(viewsets.ViewSet, generics.CreateAPIView):
 
 
 class CustomerViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
+    queryset = Customer.objects.all()
     serializer_class = CustomerSerializers
+    permission_classes = [permissions.IsAuthenticated]
+
+    @action(methods=['get'], detail=True, url_path='orders')
+    def get_orders(self, request, pk):
+        orders = Customer.objects.get(pk=pk).orders.filter(active=True)
+        # lessons = self.get_object().lessons.filter(active=True)
+
+
+        return Response(OrderSerializers(orders, many=True, context={"request": request}).data,
+                        status=status.HTTP_200_OK)
+
 
 class CreateCustomerApiView(viewsets.ViewSet, generics.CreateAPIView):
     serializer_class = CreateCustomerSerializers

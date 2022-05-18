@@ -10,8 +10,6 @@ class ShipperAdmin(admin.ModelAdmin):
     class Meta:
        pass
 
-class BiddingAdmin(admin.ModelAdmin):
-    list_filter = ['shipper', 'created_date']
 
 
 # Register your models here.
