@@ -53,9 +53,9 @@ REST_FRAMEWORK = {
 
 }
 
-# OAUTH2_PROVIDER = {
-#     'OAUTH2_BACKEND_CLASS': 'oauth2_provider.oauth2_backends.JSONOAuthLibCore',
-# }
+OAUTH2_PROVIDER = {
+    'OAUTH2_BACKEND_CLASS': 'oauth2_provider.oauth2_backends.JSONOAuthLibCore',
+}
 
 MEDIA_ROOT = '%s/DeliveryApp/static/' % BASE_DIR
 
@@ -76,6 +76,7 @@ MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware'
 
 ]
+
 CORS_ALLOW_ALL_ORIGINS=True
 
 #Debug toolbar

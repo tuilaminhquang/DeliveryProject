@@ -7,7 +7,9 @@ from rest_framework.parsers import MultiPartParser
 
 
 from .models import User, Shipper, Customer, Order, RatingShipper, Status
-from .serializers import UserSerializers, ShipperSerializers, OrderSerializers,AuthShipperSerializers,CreateShipperSerializers
+from .serializers import UserSerializers, \
+    ShipperSerializers, OrderSerializers,AuthShipperSerializers,CreateShipperSerializers,\
+    CreateCustomerSerializers, CustomerSerializers
 
 # Create your views here.
 class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
@@ -28,7 +30,13 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
 
 
 
-class ShipperViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveAPIView, generics.ListAPIView):
+class ShipperDetailViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
+    queryset = Shipper.objects.all()
+    serializer_class = ShipperSerializers
+
+
+
+class ShipperViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.ListAPIView):
     queryset = Shipper.objects.all()
     serializer_class = ShipperSerializers
     permission_classes = [permissions.IsAuthenticated]
@@ -52,6 +60,7 @@ class ShipperViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.Retrieve
 
 
 
+
 class OrderViewSet(viewsets.ViewSet, generics.CreateAPIView):
     serializer_class = OrderSerializers
     queryset = Order.objects.filter(active=True)
@@ -64,10 +73,20 @@ class OrderViewSet(viewsets.ViewSet, generics.CreateAPIView):
             serializer.save(customer=customer, status=Status.objects.get(id=1))
 
 
+class CustomerViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
+    serializer_class = CustomerSerializers
+
+class CreateCustomerApiView(viewsets.ViewSet, generics.CreateAPIView):
+    serializer_class = CreateCustomerSerializers
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
 class CreateShipperApiView(viewsets.ViewSet, generics.CreateAPIView):
     serializer_class = CreateShipperSerializers
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-

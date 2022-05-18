@@ -36,7 +36,18 @@ class ShipperSerializers(serializers.ModelSerializer):
     user = UserSerializers()
     class Meta:
         model = Shipper
-        fields = ['user','identity_number']
+        fields = ['id','user','identity_number']
+
+class CustomerSerializers(serializers.ModelSerializer):
+    user = UserSerializers()
+    class Meta:
+        model = Shipper
+        fields = ['user']
+
+class CreateCustomerSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = []
 
 class CreateShipperSerializers(serializers.ModelSerializer):
 
