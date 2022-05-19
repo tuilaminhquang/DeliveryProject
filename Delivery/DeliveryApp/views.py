@@ -75,17 +75,18 @@ class OrderViewSet(viewsets.ViewSet, generics.CreateAPIView):
             serializer.save(customer=customer, status=Status.objects.get(id=1))
 
 
-class CustomerViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
+class CustomerViewSet(viewsets.ViewSet, generics.RetrieveAPIView, generics.ListAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializers
     permission_classes = [permissions.IsAuthenticated]
 
-    @action(methods=['get'], detail=True, url_path='orders')
-    def get_orders(self, request, pk):
-        orders = Customer.objects.get(pk=pk).orders.filter(active=True)
+    @action(methods=['get'], detail=False, url_path='my-orders')
+    def get_orders(self, request):
+        orders = Customer.objects.get(user=request.user).orders.filter(active=True)
+
         # lessons = self.get_object().lessons.filter(active=True)
-
-
+        # return Response(OrderSerializers.serializer_class(orders, context={'request': request}).data,
+        #                     status=status.HTTP_200_OK)
         return Response(OrderSerializers(orders, many=True, context={"request": request}).data,
                         status=status.HTTP_200_OK)
 

@@ -42,7 +42,7 @@ class CustomerSerializers(serializers.ModelSerializer):
     user = UserSerializers()
     class Meta:
         model = Shipper
-        fields = ['user']
+        fields = ['id','user']
 
 class CreateCustomerSerializers(serializers.ModelSerializer):
     class Meta:
