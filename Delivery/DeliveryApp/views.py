@@ -6,10 +6,10 @@ from rest_framework.parsers import MultiPartParser
 
 
 
-from .models import User, Shipper, Customer, Order, RatingShipper, Status
+from .models import User, Shipper, Customer, Order, RatingShipper, Status, Comment
 from .serializers import UserSerializers, \
     ShipperSerializers, OrderSerializers,AuthShipperSerializers,CreateShipperSerializers,\
-    CreateCustomerSerializers, CustomerSerializers
+    CreateCustomerSerializers, CustomerSerializers, CreateCommentSerializer, CommentSerializer
 
 # Create your views here.
 class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
@@ -41,7 +41,29 @@ class ShipperViewSet(viewsets.ViewSet, generics.ListAPIView, generics.RetrieveAP
     serializer_class = ShipperSerializers
     permission_classes = [permissions.IsAuthenticated]
 
+    @action(methods=['post'], detail=True, url_path="add-comment")
+    def add_comment(self, request, pk):
+        content = request.data.get('content')
+        customer = Customer.objects.get(user=request.user)
+        if content:
 
+            c = Comment.objects.create(content=content,
+                                       shipper=self.get_object(),
+                                       customer=customer)
+
+            return Response(CreateCommentSerializer(c, context={"request": request}).data,
+                            status=status.HTTP_201_CREATED)
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+    @action(methods=['get'], url_path='comments', detail=True)
+    def get_comments(self, request, pk):
+        shipper = self.get_object()
+        comments = shipper.comments.select_related('customer').filter(active=True)
+
+        return Response(CommentSerializer(comments, many=True, context={'request': request}).data,
+                        status=status.HTTP_200_OK)
 
 
     @action(methods=['post'], url_path='rating', detail=True)
@@ -63,7 +85,7 @@ class ShipperViewSet(viewsets.ViewSet, generics.ListAPIView, generics.RetrieveAP
 
 
 
-class OrderViewSet(viewsets.ViewSet, generics.CreateAPIView):
+class OrderViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveAPIView):
     serializer_class = OrderSerializers
     queryset = Order.objects.filter(active=True)
     permission_classes = [permissions.IsAuthenticated]
@@ -73,6 +95,8 @@ class OrderViewSet(viewsets.ViewSet, generics.CreateAPIView):
 
         if customer:
             serializer.save(customer=customer, status=Status.objects.get(id=1))
+
+
 
 
 class CustomerViewSet(viewsets.ViewSet, generics.RetrieveAPIView, generics.ListAPIView):
@@ -90,6 +114,12 @@ class CustomerViewSet(viewsets.ViewSet, generics.RetrieveAPIView, generics.ListA
         return Response(OrderSerializers(orders, many=True, context={"request": request}).data,
                         status=status.HTTP_200_OK)
 
+
+
+
+
+        return Response(data=OrderSerializers(orders, many=True, context={'request': request}).data,
+                        status=status.HTTP_200_OK)
 
 class CreateCustomerApiView(viewsets.ViewSet, generics.CreateAPIView):
     serializer_class = CreateCustomerSerializers

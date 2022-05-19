@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Shipper, Customer, Order
+from .models import User, Shipper, Customer, Order, Comment
 from rest_framework.fields import CurrentUserDefault
 
 
@@ -83,6 +83,17 @@ class OrderSerializers(serializers.ModelSerializer):
         fields = ['id', 'order_name', 'created_date', 'updated_date', 'shipping_method','note', 'image', 'customer','km','from_address','to_address']
 
 
+class CreateCommentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Comment
+        fields = ['content', 'shipper']
+
+class CommentSerializer(serializers.ModelSerializer):
+    customer = CustomerSerializers()
+    class Meta:
+        model = Comment
+        exclude = ['active']
 
 
 
