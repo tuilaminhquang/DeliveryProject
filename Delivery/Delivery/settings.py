@@ -51,6 +51,7 @@ REST_FRAMEWORK = {
         'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
     ),
 
+
 }
 
 # OAUTH2_PROVIDER = {
@@ -59,8 +60,10 @@ REST_FRAMEWORK = {
 
 MEDIA_ROOT = '%s/DeliveryApp/static/' % BASE_DIR
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880 #whatever size you want to gave i have given 5MB
 
 
 

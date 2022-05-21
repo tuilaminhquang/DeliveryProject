@@ -3,13 +3,17 @@ from rest_framework import viewsets, generics, status, permissions, mixins
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
+from django.http import HttpResponse
+from django.http import HttpResponseForbidden
 
 
 
-from .models import User, Shipper, Customer, Order, RatingShipper, Status, Comment
+
+
+from .models import User, Shipper, Customer, Order, RatingShipper, Status, Comment, Bidding
 from .serializers import UserSerializers, \
     ShipperSerializers, OrderSerializers,AuthShipperSerializers,CreateShipperSerializers,\
-    CreateCustomerSerializers, CustomerSerializers, CreateCommentSerializer, CommentSerializer
+    CreateCustomerSerializers, CustomerSerializers, CreateCommentSerializer, CommentSerializer, BiddingSerializer
 
 # Create your views here.
 class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
@@ -17,6 +21,18 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
     serializer_class = UserSerializers
     parser_classes = [MultiPartParser,]
 
+    # def post(self, request, *args, **kwargs):
+    #     username = request.data['username']
+    #     password = request.data['password']
+    #     email = request.data['email']
+    #     first_name = request.data['first_name']
+    #     last_name = request.data['last_name']
+    #     avatar = request.data['avatar']
+    #     User.objects.create(username=username, password=password, email=email, first_name=first_name,
+    #                         last_name=last_name, avatar=avatar)
+    #
+    #
+    #     return HttpResponse({'message': 'User created'}, status=200)
     def get_permissions(self):
         if self.action == 'current_user':
             return [permissions.IsAuthenticated()]
@@ -90,12 +106,38 @@ class OrderViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveAP
     queryset = Order.objects.filter(active=True)
     permission_classes = [permissions.IsAuthenticated]
 
+
     def perform_create(self, serializer):
         customer = Customer.objects.get(user=self.request.user)
 
         if customer:
             serializer.save(customer=customer, status=Status.objects.get(id=1))
+    @action(methods=['get'], url_path='list-bidding', detail=True)
+    def get_list(self, request, pk):
+        order = self.get_object()
+        customer = Customer.objects.get(user=request.user)
+        if order.customer == customer:
+        #if customer:
+            bidding = order.bidding.select_related('shipper').all()
+            return Response(BiddingSerializer(bidding, many=True, context={"request": request}).data,
+                            status=status.HTTP_200_OK)
+        return HttpResponseForbidden()
 
+    @action(methods=['post'], url_path='bidding', detail=True)
+    def bidding(self, request, pk):
+        order = self.get_object()
+        shipper = Shipper.objects.get(user=request.user)
+
+        if shipper:
+            b, _ = Bidding.objects.get_or_create(shipper=shipper, order=order)
+            b.bid = request.data.get('bid', 0)
+        try:
+            b.save()
+        except:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(data=OrderSerializers(order, context={'request': request}).data,
+                        status=status.HTTP_200_OK)
 
 
 
@@ -120,6 +162,7 @@ class CustomerViewSet(viewsets.ViewSet, generics.RetrieveAPIView, generics.ListA
 
         return Response(data=OrderSerializers(orders, many=True, context={'request': request}).data,
                         status=status.HTTP_200_OK)
+
 
 class CreateCustomerApiView(viewsets.ViewSet, generics.CreateAPIView):
     serializer_class = CreateCustomerSerializers
