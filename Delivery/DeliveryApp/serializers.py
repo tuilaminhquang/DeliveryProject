@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Shipper, Customer, Order, Comment, Bidding
+from .models import User, Shipper, Customer, Order, Comment, Bidding, Status,Receipt
 from rest_framework.fields import CurrentUserDefault
 
 
@@ -78,10 +78,28 @@ class AuthShipperSerializers(ShipperSerializers):
         model = Shipper
         fields = ShipperSerializers.Meta.fields + ['rating']
 
+class StatusSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Status
+        fields = ['name']
 
+class CreateOrderSerializers(serializers.ModelSerializer):
+
+    class Meta:
+        model = Order
+        fields = ['id', 'order_name', 'created_date', 'updated_date','note',
+                  'image', 'customer','km','from_address','to_address']
 
 class OrderSerializers(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField(source='image')
+    image_path = serializers.SerializerMethodField()
+    status = StatusSerializers()
+
+    def get_image_path(self, obj):
+        request = self.context['request']
+        if obj.image and not obj.image.name.startswith("/static"):
+            path = '/static/%s' % obj.image.name
+
+            return request.build_absolute_uri(path)
     #bidding = serializers.SerializerMethodField()
 
     # def get_bidding(self, order):
@@ -93,21 +111,13 @@ class OrderSerializers(serializers.ModelSerializer):
     #         if b:
     #             return b.rate
 
-    def get_image(self, obj):
-        request = self.context['request']
-        # if obj.image and obj.image.name.startswith("/static"):
-        #     pass
-        # else:
-        path = '/static/%s' % obj.image.name
-
-        return request.build_absolute_uri(path)
 
 
 
     class Meta:
         model = Order
         fields = ['id', 'order_name', 'created_date', 'updated_date','note',
-                  'image', 'customer','km','from_address','to_address']
+                  'image', 'customer','km','from_address','to_address','image_path','status']
 
 
 class CreateCommentSerializer(serializers.ModelSerializer):
@@ -131,3 +141,11 @@ class BiddingSerializer(serializers.ModelSerializer):
         model = Bidding
         fields = ["id", "bid", "created_date","shipper","order"]
 
+
+
+class ReceiptSerializers(serializers.ModelSerializer):
+    shipper = ShipperSerializers()
+    order = OrderSerializers()
+    class Meta:
+        model = Receipt
+        fields = ["id","order","shipper", "price"]

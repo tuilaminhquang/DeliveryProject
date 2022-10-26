@@ -10,10 +10,11 @@ from django.http import HttpResponseForbidden
 
 
 
-from .models import User, Shipper, Customer, Order, RatingShipper, Status, Comment, Bidding
+from .models import User, Shipper, Customer, Order, RatingShipper, Status, Comment, Bidding, Receipt
 from .serializers import UserSerializers, \
     ShipperSerializers, OrderSerializers,AuthShipperSerializers,CreateShipperSerializers,\
-    CreateCustomerSerializers, CustomerSerializers, CreateCommentSerializer, CommentSerializer, BiddingSerializer
+    CreateCustomerSerializers, CustomerSerializers, CreateCommentSerializer, CommentSerializer,\
+    BiddingSerializer, CreateOrderSerializers, ReceiptSerializers
 
 # Create your views here.
 class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
@@ -57,6 +58,8 @@ class ShipperViewSet(viewsets.ViewSet, generics.ListAPIView, generics.RetrieveAP
     serializer_class = ShipperSerializers
     permission_classes = [permissions.IsAuthenticated]
 
+
+
     @action(methods=['post'], detail=True, url_path="add-comment")
     def add_comment(self, request, pk):
         content = request.data.get('content')
@@ -99,19 +102,37 @@ class ShipperViewSet(viewsets.ViewSet, generics.ListAPIView, generics.RetrieveAP
                         status=status.HTTP_200_OK)
 
 
+class CreateOrderViewSet(viewsets.ViewSet, generics.CreateAPIView):
+    serializer_class = CreateOrderSerializers
+    queryset = Order.objects.filter(active=True)
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        customer = Customer.objects.get(user=self.request.user)
+        if customer:
+            serializer.save(customer=customer, status=Status.objects.get(id=1))
+            # serializer.save(customer=customer)
 
 
-class OrderViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveAPIView):
+class ShipperOrderViewSet(viewsets.ViewSet, generics.ListAPIView):
+    serializer_class = OrderSerializers
+    queryset = Order.objects.filter(status=1)
+    permission_classes = [permissions.IsAuthenticated]
+
+class OrderViewSet(viewsets.ViewSet, generics.RetrieveAPIView, generics.ListAPIView):
     serializer_class = OrderSerializers
     queryset = Order.objects.filter(active=True)
     permission_classes = [permissions.IsAuthenticated]
 
 
-    def perform_create(self, serializer):
-        customer = Customer.objects.get(user=self.request.user)
+    @action(methods=['post'], url_path='change-status', detail=True)
+    def change_status(self, request, pk):
+        order = self.get_object()
+        order.status = Status.objects.get(pk=3)
+        order.save()
+        return Response(OrderSerializers(order, context={"request": request}).data,
+                            status=status.HTTP_200_OK)
 
-        if customer:
-            serializer.save(customer=customer, status=Status.objects.get(id=1))
     @action(methods=['get'], url_path='list-bidding', detail=True)
     def get_list(self, request, pk):
         order = self.get_object()
@@ -123,6 +144,18 @@ class OrderViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveAP
                             status=status.HTTP_200_OK)
         return HttpResponseForbidden()
 
+    @action(methods=['post'], url_path='add-receipt', detail=True)
+    def add_receipt(self, request, pk):
+        order = self.get_object()
+        order.status = Status.objects.get(pk=2)
+        order.save()
+        customer = Customer.objects.get(user=request.user)
+        shipper = Shipper.objects.get(pk=int(request.data.get('shipper')))
+        price = request.data.get('price')
+        if customer == order.customer:
+            r, _= Receipt.objects.get_or_create(order=order , price=price, shipper=shipper)
+        return Response(data=ReceiptSerializers(r, context={'request': request}).data,
+                        status=status.HTTP_201_CREATED)
     @action(methods=['post'], url_path='bidding', detail=True)
     def bidding(self, request, pk):
         order = self.get_object()
@@ -178,3 +211,19 @@ class CreateShipperApiView(viewsets.ViewSet, generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+class ReceiptApiView(viewsets.ViewSet, generics.ListAPIView):
+    queryset = Receipt.objects.all()
+    serializer_class = ReceiptSerializers
+    permission_classes = [permissions.IsAuthenticated]
+
+    @action(methods=['get'], detail=False, url_path='my-receipt')
+    def get_receipt(self, request):
+        shipper = Shipper.objects.get(user=request.user)
+        receipts = shipper.receipts.filter(shipper=shipper)
+
+        # lessons = self.get_object().lessons.filter(active=True)
+        # return Response(OrderSerializers.serializer_class(orders, context={'request': request}).data,
+        #                     status=status.HTTP_200_OK)
+        return Response(ReceiptSerializers(receipts, many=True, context={"request": request}).data,
+                        status=status.HTTP_200_OK)

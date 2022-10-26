@@ -77,7 +77,8 @@ class Bidding(models.Model):
 
     class Meta:
         unique_together=('order', 'shipper')
-
+    def __str__(self):
+        return self.order.order_name
 
 
 class Comment(ModelBase):
@@ -91,7 +92,13 @@ class Comment(ModelBase):
         return self.content
 
 
-
+class Receipt(models.Model):
+    created_date = models.DateTimeField(auto_now_add=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    shipper = models.ForeignKey(Shipper, on_delete=models.CASCADE, related_name='receipts')
+    price = models.IntegerField(default=0)
+    def __str__(self):
+        return self.order.order_name
 
 
 
